@@ -9,6 +9,7 @@ import com.tanvir.conferencebudget.data.model.Person
 import com.tanvir.conferencebudget.data.model.SpendingEntry
 import com.tanvir.conferencebudget.data.model.SubCategory
 import com.tanvir.conferencebudget.data.repository.FirestoreRepository
+import com.tanvir.conferencebudget.data.util.DefaultTemplateSeeder
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -18,6 +19,12 @@ import kotlinx.coroutines.launch
 
 class BudgetViewModel(private val conferenceId: String) : ViewModel() {
     private val repository = FirestoreRepository()
+
+    init {
+        viewModelScope.launch {
+            DefaultTemplateSeeder.preloadDefaultTemplatesIfEmpty(repository, conferenceId)
+        }
+    }
 
     val categories: StateFlow<List<Category>> = repository.getCategories(conferenceId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
