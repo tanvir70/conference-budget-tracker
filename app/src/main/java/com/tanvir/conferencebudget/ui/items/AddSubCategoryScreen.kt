@@ -40,9 +40,8 @@ fun AddSubCategoryScreen(
     var selectedCategoryId by rememberSaveable { mutableStateOf(categoryId ?: categories.firstOrNull()?.id ?: "") }
     var name by rememberSaveable { mutableStateOf("") }
     var details by rememberSaveable { mutableStateOf("") }
-    var estimatedCostStr by rememberSaveable { mutableStateOf("") }
-    var assignedVolunteerId by rememberSaveable { mutableStateOf("") }
-    var assignedVolunteerName by rememberSaveable { mutableStateOf("") }
+    var costStr by rememberSaveable { mutableStateOf("") }
+    var responsiblePerson by rememberSaveable { mutableStateOf("") }
     var notes by rememberSaveable { mutableStateOf("") }
 
     var categoryExpanded by remember { mutableStateOf(false) }
@@ -101,7 +100,7 @@ fun AddSubCategoryScreen(
                 }
             }
 
-            // Category Selector
+            // Parent Category Selector
             ExposedDropdownMenuBox(
                 expanded = categoryExpanded && isAdmin,
                 onExpandedChange = { if (isAdmin) categoryExpanded = !categoryExpanded }
@@ -135,7 +134,7 @@ fun AddSubCategoryScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Sub-Category Name (e.g. Lunch, Snacks, Water)") },
+                label = { Text("Sub-Category") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
                 enabled = isAdmin
@@ -151,26 +150,26 @@ fun AddSubCategoryScreen(
             )
 
             OutlinedTextField(
-                value = estimatedCostStr,
-                onValueChange = { estimatedCostStr = it },
-                label = { Text("Estimated Cost (৳)") },
+                value = costStr,
+                onValueChange = { costStr = it },
+                label = { Text("Cost (৳)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
                 enabled = isAdmin
             )
 
-            // Volunteer Assignment Selector
+            // Responsible Person Selector
             ExposedDropdownMenuBox(
                 expanded = volunteerExpanded && isAdmin,
                 onExpandedChange = { if (isAdmin) volunteerExpanded = !volunteerExpanded }
             ) {
                 OutlinedTextField(
-                    value = if (assignedVolunteerName.isBlank()) "Unassigned" else assignedVolunteerName,
-                    onValueChange = {},
-                    readOnly = true,
+                    value = if (responsiblePerson.isBlank()) "Unassigned" else responsiblePerson,
+                    onValueChange = { responsiblePerson = it },
+                    readOnly = false,
                     enabled = isAdmin,
-                    label = { Text("Assigned Responsible Volunteer") },
+                    label = { Text("Responsible Person") },
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = volunteerExpanded) },
                     modifier = Modifier.menuAnchor().fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp)
@@ -182,17 +181,15 @@ fun AddSubCategoryScreen(
                     DropdownMenuItem(
                         text = { Text("Unassigned") },
                         onClick = {
-                            assignedVolunteerId = ""
-                            assignedVolunteerName = ""
+                            responsiblePerson = ""
                             volunteerExpanded = false
                         }
                     )
                     allUsers.forEach { user ->
                         DropdownMenuItem(
-                            text = { Text("${user.name} (${user.role})") },
+                            text = { Text(user.name) },
                             onClick = {
-                                assignedVolunteerId = user.uid
-                                assignedVolunteerName = user.name
+                                responsiblePerson = user.name
                                 volunteerExpanded = false
                             }
                         )
@@ -218,9 +215,8 @@ fun AddSubCategoryScreen(
                             conferenceId = conferenceId,
                             name = name.trim(),
                             details = details.trim(),
-                            estimatedCost = estimatedCostStr.toDoubleOrNull() ?: 0.0,
-                            assignedVolunteerId = assignedVolunteerId,
-                            assignedVolunteerName = assignedVolunteerName,
+                            cost = costStr.toDoubleOrNull() ?: 0.0,
+                            responsiblePerson = responsiblePerson.trim(),
                             notes = notes.trim()
                         )
                         budgetViewModel.addSubCategory(subCat)

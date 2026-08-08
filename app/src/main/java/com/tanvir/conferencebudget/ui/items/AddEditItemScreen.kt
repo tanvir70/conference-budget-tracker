@@ -28,14 +28,14 @@ fun AddEditItemScreen(
 
     var name by rememberSaveable { mutableStateOf(existingItem?.name ?: "") }
     var details by rememberSaveable { mutableStateOf(existingItem?.details ?: "") }
-    var estimatedCost by rememberSaveable { mutableStateOf(existingItem?.estimatedCost?.toString() ?: "") }
+    var costStr by rememberSaveable { mutableStateOf(existingItem?.cost?.toString() ?: "") }
     var notes by rememberSaveable { mutableStateOf(existingItem?.notes ?: "") }
 
     LaunchedEffect(existingItem) {
         existingItem?.let { item ->
             name = item.name
             details = item.details
-            estimatedCost = item.estimatedCost.toString()
+            costStr = item.cost.toString()
             notes = item.notes
         }
     }
@@ -63,7 +63,7 @@ fun AddEditItemScreen(
             OutlinedTextField(
                 value = name,
                 onValueChange = { name = it },
-                label = { Text("Name") },
+                label = { Text("Sub-Category") },
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
@@ -73,9 +73,9 @@ fun AddEditItemScreen(
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
-                value = estimatedCost,
-                onValueChange = { estimatedCost = it },
-                label = { Text("Estimated Cost") },
+                value = costStr,
+                onValueChange = { costStr = it },
+                label = { Text("Cost (৳)") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -93,7 +93,7 @@ fun AddEditItemScreen(
                         val updated = item.copy(
                             name = name,
                             details = details,
-                            estimatedCost = estimatedCost.toDoubleOrNull() ?: item.estimatedCost,
+                            cost = costStr.toDoubleOrNull() ?: item.cost,
                             notes = notes
                         )
                         budgetViewModel.updateSubCategory(updated)

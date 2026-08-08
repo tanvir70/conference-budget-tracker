@@ -9,6 +9,7 @@ import com.tanvir.conferencebudget.data.model.Person
 import com.tanvir.conferencebudget.data.model.SpendingEntry
 import com.tanvir.conferencebudget.data.model.SubCategory
 import com.tanvir.conferencebudget.data.repository.FirestoreRepository
+import com.tanvir.conferencebudget.data.util.DefaultConferenceBudgetSeeder
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -18,6 +19,12 @@ import kotlinx.coroutines.launch
 
 class BudgetViewModel(private val conferenceId: String) : ViewModel() {
     private val repository = FirestoreRepository()
+
+    init {
+        viewModelScope.launch {
+            DefaultConferenceBudgetSeeder.preloadDefaultBudgetIfEmpty(repository, conferenceId)
+        }
+    }
 
     val categories: StateFlow<List<Category>> = repository.getCategories(conferenceId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -38,7 +45,7 @@ class BudgetViewModel(private val conferenceId: String) : ViewModel() {
 
     // Derived totals
     val totalEstimated: StateFlow<Double> = subCategories
-        .map { items -> items.sumOf { it.estimatedCost } }
+        .map { items -> items.sumOf { it.cost } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0.0)
 
     val totalActual: StateFlow<Double> = combine(spendingEntries, subCategories) { entries, _ ->

@@ -10,13 +10,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.AddShoppingCart
-import androidx.compose.material.icons.filled.CreateNewFolder
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.PostAdd
+import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -24,7 +21,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tanvir.conferencebudget.data.model.Category
@@ -32,6 +28,8 @@ import com.tanvir.conferencebudget.data.model.SpendingEntry
 import com.tanvir.conferencebudget.data.model.SubCategory
 import com.tanvir.conferencebudget.data.model.User
 import com.tanvir.conferencebudget.ui.common.CategoryIconBadge
+import com.tanvir.conferencebudget.ui.common.CategoryStyle
+import com.tanvir.conferencebudget.ui.common.getCategoryStyle
 import com.tanvir.conferencebudget.ui.theme.DeepTealPrimary
 import com.tanvir.conferencebudget.viewmodel.AuthViewModel
 import com.tanvir.conferencebudget.viewmodel.BudgetViewModel
@@ -51,156 +49,73 @@ fun BudgetTab(
 
     val isAdmin = currentUser?.isFinancialSecretary == true
 
-    val onRecordExpenseClicked: () -> Unit = {
-        val targetSubCatId = subCategories.firstOrNull()?.id ?: ""
-        if (targetSubCatId.isNotBlank()) onNavigateToAddSpending(targetSubCatId)
-    }
-
-    if (categories.isEmpty() && subCategories.isEmpty()) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Admin quick actions top row
+        if (isAdmin) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Icon(
-                        Icons.Default.Folder,
-                        contentDescription = null,
-                        modifier = Modifier.size(54.dp),
-                        tint = DeepTealPrimary
-                    )
+                    Button(
+                        onClick = onNavigateToAddCategory,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = DeepTealPrimary)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Add Category", fontWeight = FontWeight.Bold)
+                    }
 
-                    Text(
-                        text = "No budget categories created yet",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-
-                    if (isAdmin) {
-                        Text(
-                            text = "As Financial Secretary, start by creating top-level categories and adding sub-categories under them.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF64748B),
-                            textAlign = TextAlign.Center
-                        )
-
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Button(
-                                    onClick = onNavigateToAddCategory,
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(14.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = DeepTealPrimary)
-                                ) {
-                                    Icon(Icons.Default.CreateNewFolder, contentDescription = null, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("+ Category")
-                                }
-
-                                OutlinedButton(
-                                    onClick = { onNavigateToAddSubCategory(null) },
-                                    modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(14.dp)
-                                ) {
-                                    Icon(Icons.Default.PostAdd, contentDescription = null, modifier = Modifier.size(16.dp))
-                                    Spacer(modifier = Modifier.width(4.dp))
-                                    Text("+ Sub-Category")
-                                }
-                            }
-                        }
-                    } else {
-                        Text(
-                            text = "Waiting for Financial Secretary (Admin) to create budget categories.",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF64748B),
-                            textAlign = TextAlign.Center
-                        )
+                    OutlinedButton(
+                        onClick = { onNavigateToAddSubCategory(null) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(44.dp),
+                        shape = RoundedCornerShape(14.dp)
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Add Sub-Cat", fontWeight = FontWeight.Bold)
                     }
                 }
             }
         }
-    } else {
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Clean Action Bar at Top
+
+        if (categories.isEmpty()) {
             item {
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    if (isAdmin) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Button(
-                                onClick = onNavigateToAddCategory,
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(14.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = DeepTealPrimary)
-                            ) {
-                                Icon(Icons.Default.CreateNewFolder, contentDescription = null, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text("+ Category")
-                            }
-
-                            OutlinedButton(
-                                onClick = { onNavigateToAddSubCategory(null) },
-                                modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(14.dp)
-                            ) {
-                                Icon(Icons.Default.PostAdd, contentDescription = null, modifier = Modifier.size(16.dp))
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text("+ Sub-Category")
-                            }
-                        }
-                    }
-
-                    if (subCategories.isNotEmpty()) {
-                        Button(
-                            onClick = onRecordExpenseClicked,
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
-                        ) {
-                            Icon(Icons.Default.AddShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Record Expense", fontWeight = FontWeight.Bold)
-                        }
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = DeepTealPrimary)
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text("Loading & preparing budget items...", color = Color(0xFF64748B))
                     }
                 }
             }
+        } else {
+            items(categories, key = { it.id }) { category ->
+                val categorySubCats = subCategories.filter { it.categoryId == category.id }
 
-            items(categories) { category ->
                 CategorySection(
                     category = category,
-                    subCategories = subCategories.filter { it.categoryId == category.id },
+                    subCategories = categorySubCats,
                     spendingEntries = spendingEntries,
                     currentUser = currentUser,
                     isAdmin = isAdmin,
-                    onDeleteCategory = { budgetViewModel.deleteCategory(category.id) },
                     onAddSubCategory = { onNavigateToAddSubCategory(category.id) },
+                    onDeleteCategory = { budgetViewModel.deleteCategory(category.id) },
                     onAddSpending = onNavigateToAddSpending,
                     onDeleteSubCategory = { budgetViewModel.deleteSubCategory(it) },
                     onDeleteSpending = { budgetViewModel.deleteSpendingEntry(it) }
@@ -217,19 +132,25 @@ fun CategorySection(
     spendingEntries: List<SpendingEntry>,
     currentUser: User?,
     isAdmin: Boolean,
-    onDeleteCategory: () -> Unit,
     onAddSubCategory: () -> Unit,
+    onDeleteCategory: () -> Unit,
     onAddSpending: (String) -> Unit,
     onDeleteSubCategory: (String) -> Unit,
     onDeleteSpending: (String) -> Unit
 ) {
+    val categoryEstimated = subCategories.sumOf { it.cost }
+    val categoryActual = spendingEntries
+        .filter { entry -> subCategories.any { it.id == entry.subCategoryId } }
+        .sumOf { it.amount }
+
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Category Header
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -237,6 +158,7 @@ fun CategorySection(
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CategoryIconBadge(categoryName = category.name, size = 42.dp)
+
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = category.name,
@@ -309,11 +231,10 @@ fun SubCategoryCard(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    val isAssignedToCurrentUser = subCat.assignedVolunteerId == currentUser?.uid || 
-        (subCat.assignedVolunteerName.isNotBlank() && subCat.assignedVolunteerName == currentUser?.name)
+    val isAssignedToCurrentUser = (subCat.responsiblePerson.isNotBlank() && subCat.responsiblePerson.equals(currentUser?.name, ignoreCase = true))
     val canAddSpending = isAdmin || isAssignedToCurrentUser
 
-    val ratio = if (subCat.estimatedCost > 0) (actualSpent / subCat.estimatedCost).coerceIn(0.0, 1.0).toFloat() else 0f
+    val ratio = if (subCat.cost > 0) (actualSpent / subCat.cost).coerceIn(0.0, 1.0).toFloat() else 0f
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -332,14 +253,14 @@ fun SubCategoryCard(
                     if (subCat.details.isNotBlank()) {
                         Text(text = subCat.details, style = MaterialTheme.typography.bodySmall, color = Color(0xFF64748B))
                     }
-                    if (subCat.assignedVolunteerName.isNotBlank()) {
+                    if (subCat.responsiblePerson.isNotBlank()) {
                         Surface(
                             shape = CircleShape,
                             color = Color(0xFFE8F5E9),
                             modifier = Modifier.padding(top = 4.dp)
                         ) {
                             Text(
-                                text = "👤 ${subCat.assignedVolunteerName}",
+                                text = "👤 ${subCat.responsiblePerson}",
                                 style = MaterialTheme.typography.labelSmall,
                                 color = Color(0xFF047857),
                                 fontWeight = FontWeight.Bold,
@@ -364,12 +285,12 @@ fun SubCategoryCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text("ESTIMATED", style = MaterialTheme.typography.labelSmall, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                    Text("৳%,.0f".format(subCat.estimatedCost), fontWeight = FontWeight.Medium)
+                    Text("COST", style = MaterialTheme.typography.labelSmall, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                    Text("৳%,.0f".format(subCat.cost), fontWeight = FontWeight.Medium)
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("SPENT (${spendingEntries.size} logs)", style = MaterialTheme.typography.labelSmall, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
-                    val color = if (actualSpent <= subCat.estimatedCost) Color(0xFF10B981) else Color(0xFFEF4444)
+                    Text("PAID (${spendingEntries.size} logs)", style = MaterialTheme.typography.labelSmall, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                    val color = if (actualSpent <= subCat.cost) Color(0xFF10B981) else Color(0xFFEF4444)
                     Text("৳%,.0f".format(actualSpent), color = color, fontWeight = FontWeight.Bold)
                 }
             }
@@ -382,7 +303,7 @@ fun SubCategoryCard(
                     .fillMaxWidth()
                     .height(5.dp)
                     .clip(RoundedCornerShape(3.dp)),
-                color = if (actualSpent > subCat.estimatedCost) Color(0xFFEF4444) else Color(0xFF10B981),
+                color = if (actualSpent > subCat.cost) Color(0xFFEF4444) else Color(0xFF10B981),
                 trackColor = Color(0xFFE2E8F0)
             )
 
@@ -418,28 +339,57 @@ fun SubCategoryCard(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 8.dp)
-                        .background(Color(0xFFF1F5F9), RoundedCornerShape(10.dp))
-                        .padding(10.dp),
+                        .padding(top = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     if (spendingEntries.isEmpty()) {
-                        Text("No spending entries logged yet.", style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            text = "No spending logged for this item yet.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFF64748B),
+                            modifier = Modifier.padding(vertical = 4.dp)
+                        )
                     } else {
                         spendingEntries.forEach { entry ->
                             Row(
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(Color.White, shape = RoundedCornerShape(10.dp))
+                                    .padding(10.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = "৳%,.0f • ${entry.spentByName}".format(entry.amount), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
-                                    Text(text = "Date: ${entry.date}${if (entry.note.isNotBlank()) " • " + entry.note else ""}", style = MaterialTheme.typography.bodySmall, color = Color(0xFF64748B))
+                                    Text(
+                                        text = entry.note.ifBlank { "Logged Spend" },
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = Color(0xFF0F172A)
+                                    )
+                                    Text(
+                                        text = "${entry.date} • ${entry.spentByName.ifBlank { "Unknown" }}",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = Color(0xFF64748B)
+                                    )
                                 }
 
-                                if (isAdmin || entry.spentByUserId == currentUser?.uid) {
-                                    IconButton(onClick = { onDeleteSpending(entry.id) }, modifier = Modifier.size(24.dp)) {
-                                        Icon(Icons.Default.Delete, contentDescription = "Delete entry", tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(16.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = "৳%,.0f".format(entry.amount),
+                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                        color = Color(0xFF10B981)
+                                    )
+                                    if (isAdmin || entry.spentByUserId == currentUser?.uid) {
+                                        IconButton(
+                                            onClick = { onDeleteSpending(entry.id) },
+                                            modifier = Modifier.size(28.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Delete,
+                                                contentDescription = "Delete entry",
+                                                tint = Color(0xFFEF4444),
+                                                modifier = Modifier.size(16.dp)
+                                            )
+                                        }
                                     }
                                 }
                             }
