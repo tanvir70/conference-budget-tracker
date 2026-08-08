@@ -118,6 +118,7 @@ fun AppNavigation() {
             AddCategoryScreen(
                 conferenceId = conferenceId,
                 budgetViewModel = budgetViewModel,
+                authViewModel = authViewModel,
                 onNavigateBack = { navController.popBackStack() }
             )
         }

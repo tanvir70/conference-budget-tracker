@@ -2,7 +2,7 @@ package com.tanvir.conferencebudget.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
 import com.tanvir.conferencebudget.data.model.CashTransaction
 import com.tanvir.conferencebudget.data.model.Category
 import com.tanvir.conferencebudget.data.model.Conference
@@ -37,7 +37,7 @@ class FirestoreRepository {
                     if (user != null && (user.email.equals("tanvirnis10@gmail.com", ignoreCase = true) || user.email.contains("admin", ignoreCase = true))) {
                         if (user.role != User.ROLE_FINANCIAL_SECRETARY) {
                             user = user.copy(role = User.ROLE_FINANCIAL_SECRETARY)
-                            firestore.collection("users").document(uid).set(user)
+                            firestore.collection("users").document(uid).set(user, SetOptions.merge())
                         }
                     }
                     trySend(user)
@@ -46,16 +46,16 @@ class FirestoreRepository {
                                           firebaseUser.email?.contains("admin", ignoreCase = true) == true) {
                         User.ROLE_FINANCIAL_SECRETARY
                     } else {
-                        User.ROLE_FINANCIAL_SECRETARY
+                        User.ROLE_VOLUNTEER
                     }
                     val user = User(
                         uid = uid,
-                        name = firebaseUser.displayName ?: firebaseUser.email?.substringBefore("@") ?: "Admin User",
+                        name = firebaseUser.displayName ?: firebaseUser.email?.substringBefore("@") ?: "User",
                         email = firebaseUser.email ?: "",
                         role = defaultRole,
                         avatarUrl = "avatar_1"
                     )
-                    firestore.collection("users").document(uid).set(user)
+                    firestore.collection("users").document(uid).set(user, SetOptions.merge())
                     trySend(user)
                 }
             }
@@ -63,7 +63,7 @@ class FirestoreRepository {
     }
 
     suspend fun saveUserProfile(user: User) {
-        firestore.collection("users").document(user.uid).set(user).await()
+        firestore.collection("users").document(user.uid).set(user, SetOptions.merge()).await()
     }
 
     fun getAllUsers(): Flow<List<User>> = callbackFlow {
@@ -80,15 +80,18 @@ class FirestoreRepository {
     }
 
     suspend fun updateUserRole(uid: String, newRole: String) {
-        firestore.collection("users").document(uid).update("role", newRole).await()
+        val data = mapOf("role" to newRole)
+        firestore.collection("users").document(uid).set(data, SetOptions.merge()).await()
     }
 
     suspend fun updateUserName(uid: String, newName: String) {
-        firestore.collection("users").document(uid).update("name", newName).await()
+        val data = mapOf("name" to newName)
+        firestore.collection("users").document(uid).set(data, SetOptions.merge()).await()
     }
 
     suspend fun updateUserAvatar(uid: String, avatarUrl: String) {
-        firestore.collection("users").document(uid).update("avatarUrl", avatarUrl).await()
+        val data = mapOf("avatarUrl" to avatarUrl)
+        firestore.collection("users").document(uid).set(data, SetOptions.merge()).await()
     }
 
     // ---------------- CONFERENCES ----------------
@@ -120,9 +123,8 @@ class FirestoreRepository {
     // ---------------- CATEGORIES ----------------
 
     fun getCategories(conferenceId: String): Flow<List<Category>> = callbackFlow {
-        val listener = firestore.collection("conferences").document(conferenceId)
-            .collection("categories")
-            .orderBy("order", Query.Direction.ASCENDING)
+        val listener = firestore.collection("categories")
+            .whereEqualTo("conferenceId", conferenceId)
             .addSnapshotListener { snapshot, error ->
                 if (snapshot != null) {
                     val list = snapshot.documents.mapNotNull { doc ->
@@ -137,21 +139,23 @@ class FirestoreRepository {
     }
 
     suspend fun addCategory(category: Category): String {
-        val docRef = firestore.collection("conferences").document(category.conferenceId)
-            .collection("categories").add(category).await()
+        val docRef = firestore.collection("categories").add(category).await()
         return docRef.id
     }
 
+    suspend fun deleteCategory(categoryId: String) {
+        firestore.collection("categories").document(categoryId).delete().await()
+    }
+
     suspend fun deleteCategory(conferenceId: String, categoryId: String) {
-        firestore.collection("conferences").document(conferenceId)
-            .collection("categories").document(categoryId).delete().await()
+        deleteCategory(categoryId)
     }
 
     // ---------------- SUB-CATEGORIES ----------------
 
     fun getSubCategories(conferenceId: String): Flow<List<SubCategory>> = callbackFlow {
-        val listener = firestore.collection("conferences").document(conferenceId)
-            .collection("subCategories")
+        val listener = firestore.collection("sub_categories")
+            .whereEqualTo("conferenceId", conferenceId)
             .addSnapshotListener { snapshot, error ->
                 if (snapshot != null) {
                     val list = snapshot.documents.mapNotNull { doc ->
@@ -166,26 +170,27 @@ class FirestoreRepository {
     }
 
     suspend fun addSubCategory(subCategory: SubCategory): String {
-        val docRef = firestore.collection("conferences").document(subCategory.conferenceId)
-            .collection("subCategories").add(subCategory).await()
+        val docRef = firestore.collection("sub_categories").add(subCategory).await()
         return docRef.id
     }
 
     suspend fun updateSubCategory(subCategory: SubCategory) {
-        firestore.collection("conferences").document(subCategory.conferenceId)
-            .collection("subCategories").document(subCategory.id).set(subCategory).await()
+        firestore.collection("sub_categories").document(subCategory.id).set(subCategory).await()
+    }
+
+    suspend fun deleteSubCategory(subCategoryId: String) {
+        firestore.collection("sub_categories").document(subCategoryId).delete().await()
     }
 
     suspend fun deleteSubCategory(conferenceId: String, subCategoryId: String) {
-        firestore.collection("conferences").document(conferenceId)
-            .collection("subCategories").document(subCategoryId).delete().await()
+        deleteSubCategory(subCategoryId)
     }
 
     // ---------------- SPENDING ENTRIES ----------------
 
     fun getSpendingEntries(conferenceId: String): Flow<List<SpendingEntry>> = callbackFlow {
-        val listener = firestore.collection("conferences").document(conferenceId)
-            .collection("spendingEntries")
+        val listener = firestore.collection("spending_entries")
+            .whereEqualTo("conferenceId", conferenceId)
             .addSnapshotListener { snapshot, error ->
                 if (snapshot != null) {
                     val list = snapshot.documents.mapNotNull { doc ->
@@ -200,21 +205,23 @@ class FirestoreRepository {
     }
 
     suspend fun addSpendingEntry(entry: SpendingEntry): String {
-        val docRef = firestore.collection("conferences").document(entry.conferenceId)
-            .collection("spendingEntries").add(entry).await()
+        val docRef = firestore.collection("spending_entries").add(entry).await()
         return docRef.id
     }
 
+    suspend fun deleteSpendingEntry(entryId: String) {
+        firestore.collection("spending_entries").document(entryId).delete().await()
+    }
+
     suspend fun deleteSpendingEntry(conferenceId: String, entryId: String) {
-        firestore.collection("conferences").document(conferenceId)
-            .collection("spendingEntries").document(entryId).delete().await()
+        deleteSpendingEntry(entryId)
     }
 
     // ---------------- PERSONS ----------------
 
     fun getPersons(conferenceId: String): Flow<List<Person>> = callbackFlow {
-        val listener = firestore.collection("conferences").document(conferenceId)
-            .collection("persons")
+        val listener = firestore.collection("persons")
+            .whereEqualTo("conferenceId", conferenceId)
             .addSnapshotListener { snapshot, error ->
                 if (snapshot != null) {
                     val list = snapshot.documents.mapNotNull { doc ->
@@ -229,17 +236,27 @@ class FirestoreRepository {
     }
 
     suspend fun addPerson(person: Person): String {
-        val docRef = firestore.collection("conferences").document(person.conferenceId)
-            .collection("persons").add(person).await()
+        val docRef = firestore.collection("persons").add(person).await()
         return docRef.id
+    }
+
+    fun getPerson(personId: String): Flow<Person?> = callbackFlow {
+        val listener = firestore.collection("persons").document(personId)
+            .addSnapshotListener { snapshot, error ->
+                if (snapshot != null && snapshot.exists()) {
+                    trySend(snapshot.toObject(Person::class.java)?.copy(id = snapshot.id))
+                } else {
+                    trySend(null)
+                }
+            }
+        awaitClose { listener.remove() }
     }
 
     // ---------------- CASH TRANSACTIONS ----------------
 
-    fun getCashTransactions(conferenceId: String, personId: String): Flow<List<CashTransaction>> = callbackFlow {
-        val listener = firestore.collection("conferences").document(conferenceId)
-            .collection("persons").document(personId)
-            .collection("cashTransactions")
+    fun getCashTransactions(personId: String): Flow<List<CashTransaction>> = callbackFlow {
+        val listener = firestore.collection("cash_transactions")
+            .whereEqualTo("personId", personId)
             .addSnapshotListener { snapshot, error ->
                 if (snapshot != null) {
                     val list = snapshot.documents.mapNotNull { doc ->
@@ -253,24 +270,30 @@ class FirestoreRepository {
         awaitClose { listener.remove() }
     }
 
-    suspend fun addCashTransaction(conferenceId: String, personId: String, tx: CashTransaction) {
-        firestore.collection("conferences").document(conferenceId)
-            .collection("persons").document(personId)
-            .collection("cashTransactions").add(tx).await()
+    fun getCashTransactions(conferenceId: String, personId: String): Flow<List<CashTransaction>> = getCashTransactions(personId)
+
+    suspend fun addCashTransaction(transaction: CashTransaction): String {
+        val docRef = firestore.collection("cash_transactions").add(transaction).await()
+        return docRef.id
     }
 
-    suspend fun deleteCashTransaction(conferenceId: String, personId: String, txId: String) {
-        firestore.collection("conferences").document(conferenceId)
-            .collection("persons").document(personId)
-            .collection("cashTransactions").document(txId).delete().await()
+    suspend fun addCashTransaction(conferenceId: String, personId: String, transaction: CashTransaction): String {
+        return addCashTransaction(transaction.copy(conferenceId = conferenceId, personId = personId))
+    }
+
+    suspend fun deleteCashTransaction(transactionId: String) {
+        firestore.collection("cash_transactions").document(transactionId).delete().await()
+    }
+
+    suspend fun deleteCashTransaction(conferenceId: String, personId: String, transactionId: String) {
+        deleteCashTransaction(transactionId)
     }
 
     // ---------------- EXPENDITURES ----------------
 
-    fun getExpenditures(conferenceId: String, personId: String): Flow<List<Expenditure>> = callbackFlow {
-        val listener = firestore.collection("conferences").document(conferenceId)
-            .collection("persons").document(personId)
-            .collection("expenditures")
+    fun getExpenditures(personId: String): Flow<List<Expenditure>> = callbackFlow {
+        val listener = firestore.collection("expenditures")
+            .whereEqualTo("personId", personId)
             .addSnapshotListener { snapshot, error ->
                 if (snapshot != null) {
                     val list = snapshot.documents.mapNotNull { doc ->
@@ -284,15 +307,22 @@ class FirestoreRepository {
         awaitClose { listener.remove() }
     }
 
-    suspend fun addExpenditure(conferenceId: String, personId: String, exp: Expenditure) {
-        firestore.collection("conferences").document(conferenceId)
-            .collection("persons").document(personId)
-            .collection("expenditures").add(exp).await()
+    fun getExpenditures(conferenceId: String, personId: String): Flow<List<Expenditure>> = getExpenditures(personId)
+
+    suspend fun addExpenditure(expenditure: Expenditure): String {
+        val docRef = firestore.collection("expenditures").add(expenditure).await()
+        return docRef.id
     }
 
-    suspend fun deleteExpenditure(conferenceId: String, personId: String, expId: String) {
-        firestore.collection("conferences").document(conferenceId)
-            .collection("persons").document(personId)
-            .collection("expenditures").document(expId).delete().await()
+    suspend fun addExpenditure(conferenceId: String, personId: String, expenditure: Expenditure): String {
+        return addExpenditure(expenditure.copy(conferenceId = conferenceId, personId = personId))
+    }
+
+    suspend fun deleteExpenditure(expenditureId: String) {
+        firestore.collection("expenditures").document(expenditureId).delete().await()
+    }
+
+    suspend fun deleteExpenditure(conferenceId: String, personId: String, expenditureId: String) {
+        deleteExpenditure(expenditureId)
     }
 }
