@@ -10,10 +10,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tanvir.conferencebudget.data.model.Category
@@ -28,8 +29,6 @@ import com.tanvir.conferencebudget.data.model.SpendingEntry
 import com.tanvir.conferencebudget.data.model.SubCategory
 import com.tanvir.conferencebudget.data.model.User
 import com.tanvir.conferencebudget.ui.common.CategoryIconBadge
-import com.tanvir.conferencebudget.ui.common.CategoryStyle
-import com.tanvir.conferencebudget.ui.common.getCategoryStyle
 import com.tanvir.conferencebudget.ui.theme.DeepTealPrimary
 import com.tanvir.conferencebudget.viewmodel.AuthViewModel
 import com.tanvir.conferencebudget.viewmodel.BudgetViewModel
@@ -55,7 +54,7 @@ fun BudgetTab(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Admin quick actions top row
-        if (isAdmin) {
+        if (isAdmin && categories.isNotEmpty()) {
             item {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -91,16 +90,52 @@ fun BudgetTab(
 
         if (categories.isEmpty()) {
             item {
-                Box(
+                Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 32.dp),
-                    contentAlignment = Alignment.Center
+                        .padding(vertical = 24.dp),
+                    shape = RoundedCornerShape(22.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        CircularProgressIndicator(color = DeepTealPrimary)
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text("Loading & preparing budget items...", color = Color(0xFF64748B))
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Category,
+                            contentDescription = null,
+                            modifier = Modifier.size(56.dp),
+                            tint = DeepTealPrimary.copy(alpha = 0.4f)
+                        )
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Text(
+                            text = "No Budget Categories Yet",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 18.sp),
+                            color = Color(0xFF0F172A)
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = if (isAdmin) "Create your first category to start managing your budget." else "The administrator has not added any budget categories yet.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFF64748B),
+                            textAlign = TextAlign.Center
+                        )
+                        if (isAdmin) {
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Button(
+                                onClick = onNavigateToAddCategory,
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = DeepTealPrimary),
+                                modifier = Modifier.height(46.dp)
+                            ) {
+                                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Create First Category", fontWeight = FontWeight.Bold)
+                            }
+                        }
                     }
                 }
             }
