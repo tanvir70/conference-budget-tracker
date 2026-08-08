@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -30,6 +31,8 @@ import com.tanvir.conferencebudget.data.model.Category
 import com.tanvir.conferencebudget.data.model.SpendingEntry
 import com.tanvir.conferencebudget.data.model.SubCategory
 import com.tanvir.conferencebudget.data.model.User
+import com.tanvir.conferencebudget.ui.common.CategoryIconBadge
+import com.tanvir.conferencebudget.ui.theme.DeepTealPrimary
 import com.tanvir.conferencebudget.viewmodel.AuthViewModel
 import com.tanvir.conferencebudget.viewmodel.BudgetViewModel
 
@@ -62,8 +65,9 @@ fun BudgetTab(
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(24.dp),
@@ -74,7 +78,7 @@ fun BudgetTab(
                         Icons.Default.Folder,
                         contentDescription = null,
                         modifier = Modifier.size(54.dp),
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = DeepTealPrimary
                     )
 
                     Text(
@@ -88,7 +92,7 @@ fun BudgetTab(
                         Text(
                             text = "As Financial Secretary, start by creating top-level categories and adding sub-categories under them.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = Color(0xFF64748B),
                             textAlign = TextAlign.Center
                         )
 
@@ -103,7 +107,8 @@ fun BudgetTab(
                                 Button(
                                     onClick = onNavigateToAddCategory,
                                     modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(12.dp)
+                                    shape = RoundedCornerShape(14.dp),
+                                    colors = ButtonDefaults.buttonColors(containerColor = DeepTealPrimary)
                                 ) {
                                     Icon(Icons.Default.CreateNewFolder, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
@@ -113,7 +118,7 @@ fun BudgetTab(
                                 OutlinedButton(
                                     onClick = { onNavigateToAddSubCategory(null) },
                                     modifier = Modifier.weight(1f),
-                                    shape = RoundedCornerShape(12.dp)
+                                    shape = RoundedCornerShape(14.dp)
                                 ) {
                                     Icon(Icons.Default.PostAdd, contentDescription = null, modifier = Modifier.size(16.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
@@ -125,7 +130,7 @@ fun BudgetTab(
                         Text(
                             text = "Waiting for Financial Secretary (Admin) to create budget categories.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = Color(0xFF64748B),
                             textAlign = TextAlign.Center
                         )
                     }
@@ -138,7 +143,7 @@ fun BudgetTab(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Clean Modern Action Bar at Top
+            // Clean Action Bar at Top
             item {
                 Column(
                     modifier = Modifier.fillMaxWidth(),
@@ -152,7 +157,8 @@ fun BudgetTab(
                             Button(
                                 onClick = onNavigateToAddCategory,
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = DeepTealPrimary)
                             ) {
                                 Icon(Icons.Default.CreateNewFolder, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -162,7 +168,7 @@ fun BudgetTab(
                             OutlinedButton(
                                 onClick = { onNavigateToAddSubCategory(null) },
                                 modifier = Modifier.weight(1f),
-                                shape = RoundedCornerShape(12.dp)
+                                shape = RoundedCornerShape(14.dp)
                             ) {
                                 Icon(Icons.Default.PostAdd, contentDescription = null, modifier = Modifier.size(16.dp))
                                 Spacer(modifier = Modifier.width(4.dp))
@@ -175,8 +181,8 @@ fun BudgetTab(
                         Button(
                             onClick = onRecordExpenseClicked,
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary)
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
                         ) {
                             Icon(Icons.Default.AddShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
@@ -219,8 +225,9 @@ fun CategorySection(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -229,18 +236,12 @@ fun CategorySection(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .width(4.dp)
-                            .height(20.dp)
-                            .clip(RoundedCornerShape(2.dp))
-                            .background(MaterialTheme.colorScheme.primary)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    CategoryIconBadge(categoryName = category.name, size = 42.dp)
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = category.name,
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 17.sp),
+                        color = DeepTealPrimary
                     )
                 }
                 if (isAdmin) {
@@ -250,13 +251,13 @@ fun CategorySection(
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             if (subCategories.isEmpty()) {
                 Text(
                     text = "No sub-categories in this category.",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color(0xFF64748B),
                     modifier = Modifier.padding(vertical = 4.dp)
                 )
             } else {
@@ -280,7 +281,7 @@ fun CategorySection(
             }
 
             if (isAdmin) {
-                Spacer(modifier = Modifier.height(10.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 OutlinedButton(
                     onClick = onAddSubCategory,
                     modifier = Modifier.fillMaxWidth(),
@@ -314,11 +315,11 @@ fun SubCategoryCard(
 
     val ratio = if (subCat.estimatedCost > 0) (actualSpent / subCat.estimatedCost).coerceIn(0.0, 1.0).toFloat() else 0f
 
-    Card(
+    Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        shape = RoundedCornerShape(16.dp),
+        color = Color(0xFFF8FAFC),
+        tonalElevation = 1.dp
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             Row(
@@ -329,10 +330,22 @@ fun SubCategoryCard(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = subCat.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                     if (subCat.details.isNotBlank()) {
-                        Text(text = subCat.details, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(text = subCat.details, style = MaterialTheme.typography.bodySmall, color = Color(0xFF64748B))
                     }
                     if (subCat.assignedVolunteerName.isNotBlank()) {
-                        Text(text = "Responsible: ${subCat.assignedVolunteerName}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                        Surface(
+                            shape = CircleShape,
+                            color = Color(0xFFE8F5E9),
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
+                            Text(
+                                text = "👤 ${subCat.assignedVolunteerName}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = Color(0xFF047857),
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                            )
+                        }
                     }
                 }
 
@@ -343,7 +356,7 @@ fun SubCategoryCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             // Budget Comparison
             Row(
@@ -351,26 +364,26 @@ fun SubCategoryCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Column {
-                    Text("Estimated", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("ESTIMATED", style = MaterialTheme.typography.labelSmall, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
                     Text("৳%,.0f".format(subCat.estimatedCost), fontWeight = FontWeight.Medium)
                 }
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("Actual Spent (${spendingEntries.size} entries)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("SPENT (${spendingEntries.size} logs)", style = MaterialTheme.typography.labelSmall, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
                     val color = if (actualSpent <= subCat.estimatedCost) Color(0xFF10B981) else Color(0xFFEF4444)
                     Text("৳%,.0f".format(actualSpent), color = color, fontWeight = FontWeight.Bold)
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             LinearProgressIndicator(
                 progress = { ratio },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(4.dp)
-                    .clip(RoundedCornerShape(2.dp)),
-                color = if (actualSpent > subCat.estimatedCost) Color(0xFFEF4444) else MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    .height(5.dp)
+                    .clip(RoundedCornerShape(3.dp)),
+                color = if (actualSpent > subCat.estimatedCost) Color(0xFFEF4444) else Color(0xFF10B981),
+                trackColor = Color(0xFFE2E8F0)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -390,11 +403,12 @@ fun SubCategoryCard(
                         onClick = onAddSpending,
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp),
                         modifier = Modifier.height(34.dp),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
                     ) {
-                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.White)
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("+ Spend", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                        Text("+ Spend", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = Color.White)
                     }
                 }
             }
@@ -405,7 +419,7 @@ fun SubCategoryCard(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                        .background(Color(0xFFF1F5F9), RoundedCornerShape(10.dp))
                         .padding(10.dp),
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
@@ -420,7 +434,7 @@ fun SubCategoryCard(
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Text(text = "৳%,.0f • ${entry.spentByName}".format(entry.amount), fontWeight = FontWeight.Bold, style = MaterialTheme.typography.bodyMedium)
-                                    Text(text = "Date: ${entry.date}${if (entry.note.isNotBlank()) " • " + entry.note else ""}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                    Text(text = "Date: ${entry.date}${if (entry.note.isNotBlank()) " • " + entry.note else ""}", style = MaterialTheme.typography.bodySmall, color = Color(0xFF64748B))
                                 }
 
                                 if (isAdmin || entry.spentByUserId == currentUser?.uid) {

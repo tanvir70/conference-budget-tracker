@@ -17,12 +17,12 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tanvir.conferencebudget.data.model.User
+import com.tanvir.conferencebudget.ui.theme.DeepTealPrimary
 import com.tanvir.conferencebudget.viewmodel.AuthViewModel
 
 @Composable
@@ -49,7 +49,7 @@ fun ProfileDrawerContent(
 
     ModalDrawerSheet(
         modifier = Modifier.width(310.dp),
-        drawerContainerColor = MaterialTheme.colorScheme.surface,
+        drawerContainerColor = Color(0xFFF4F7F6),
         drawerTonalElevation = 8.dp
     ) {
         Column(
@@ -57,24 +57,16 @@ fun ProfileDrawerContent(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            // Gradient Header Card
+            // Gen-Z Curved Deep Teal Profile Card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(20.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = DeepTealPrimary),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(
-                            Brush.verticalGradient(
-                                colors = listOf(
-                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
-                                    MaterialTheme.colorScheme.primaryContainer
-                                )
-                            )
-                        )
                         .padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
@@ -85,7 +77,7 @@ fun ProfileDrawerContent(
                                 .size(26.dp)
                                 .clip(CircleShape)
                                 .clickable { showAvatarPickerState = true },
-                            color = MaterialTheme.colorScheme.primary,
+                            color = Color(0xFF10B981),
                             shape = CircleShape
                         ) {
                             Box(contentAlignment = Alignment.Center) {
@@ -99,16 +91,16 @@ fun ProfileDrawerContent(
                     Text(
                         text = (user?.name ?: "").ifEmpty { "User" },
                         style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        color = Color.White
                     )
 
                     Text(
                         text = user?.email ?: "",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                        color = Color.White.copy(alpha = 0.8f)
                     )
 
-                    Spacer(modifier = Modifier.height(10.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
                     FilterChip(
                         selected = true,
@@ -118,8 +110,8 @@ fun ProfileDrawerContent(
                             Icon(Icons.Default.Shield, contentDescription = null, modifier = Modifier.size(16.dp))
                         },
                         colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = if (isAdmin) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondaryContainer,
-                            selectedLabelColor = if (isAdmin) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSecondaryContainer
+                            selectedContainerColor = if (isAdmin) Color(0xFF10B981) else Color(0xFF0F5048),
+                            selectedLabelColor = Color.White
                         )
                     )
                 }
@@ -127,7 +119,7 @@ fun ProfileDrawerContent(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            Text("ACCOUNT SETTINGS", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp))
+            Text("ACCOUNT SETTINGS", style = MaterialTheme.typography.labelSmall, color = DeepTealPrimary, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 8.dp))
             Spacer(modifier = Modifier.height(8.dp))
 
             NavigationDrawerItem(
@@ -135,7 +127,7 @@ fun ProfileDrawerContent(
                 icon = { Icon(Icons.Default.Edit, contentDescription = null) },
                 selected = false,
                 onClick = { showEditNameDialog = true },
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(14.dp)
             )
 
             NavigationDrawerItem(
@@ -143,7 +135,7 @@ fun ProfileDrawerContent(
                 icon = { Icon(Icons.Default.Key, contentDescription = null) },
                 selected = false,
                 onClick = { showChangePassDialog = true },
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(14.dp)
             )
 
             NavigationDrawerItem(
@@ -151,7 +143,7 @@ fun ProfileDrawerContent(
                 icon = { Icon(Icons.Default.Palette, contentDescription = null) },
                 selected = false,
                 onClick = { showAvatarPickerState = true },
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(14.dp)
             )
 
             if (!isAdmin) {
@@ -160,7 +152,7 @@ fun ProfileDrawerContent(
                     icon = { Icon(Icons.Default.Shield, contentDescription = null) },
                     selected = false,
                     onClick = { showAdminPromoteState = true },
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(14.dp)
                 )
             }
 
@@ -173,13 +165,13 @@ fun ProfileDrawerContent(
                         onCloseDrawer()
                         onNavigateToBulkOnboard()
                     },
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(14.dp)
                 )
             }
 
             Spacer(modifier = Modifier.weight(1f))
 
-            HorizontalDivider()
+            HorizontalDivider(color = Color(0xFFE2E8F0))
             Spacer(modifier = Modifier.height(8.dp))
 
             NavigationDrawerItem(
@@ -191,7 +183,7 @@ fun ProfileDrawerContent(
                     authViewModel.signOut()
                     onSignOut()
                 },
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(14.dp)
             )
         }
     }
@@ -208,7 +200,7 @@ fun ProfileDrawerContent(
                     label = { Text("Full Name") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(14.dp)
                 )
             },
             confirmButton = {
@@ -218,7 +210,8 @@ fun ProfileDrawerContent(
                             authViewModel.updateProfileName(newNameInput)
                             showEditNameDialog = false
                         }
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = DeepTealPrimary)
                 ) { Text("Save") }
             },
             dismissButton = { TextButton(onClick = { showEditNameDialog = false }) { Text("Cancel") } }
@@ -238,7 +231,7 @@ fun ProfileDrawerContent(
                         label = { Text("New Password") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(14.dp)
                     )
                     if (passErrorMsg.isNotBlank()) {
                         Spacer(modifier = Modifier.height(6.dp))
@@ -265,7 +258,8 @@ fun ProfileDrawerContent(
                         } else {
                             passErrorMsg = "Password must be at least 6 characters."
                         }
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = DeepTealPrimary)
                 ) { Text("Update Password") }
             },
             dismissButton = {
@@ -325,7 +319,7 @@ fun ProfileDrawerContent(
                         label = { Text("Master Code") },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(14.dp)
                     )
                     if (adminErrorMsg.isNotBlank()) {
                         Spacer(modifier = Modifier.height(6.dp))
@@ -345,7 +339,8 @@ fun ProfileDrawerContent(
                         } else {
                             adminErrorMsg = "Invalid Master Code!"
                         }
-                    }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = DeepTealPrimary)
                 ) { Text("Activate Admin") }
             },
             dismissButton = {

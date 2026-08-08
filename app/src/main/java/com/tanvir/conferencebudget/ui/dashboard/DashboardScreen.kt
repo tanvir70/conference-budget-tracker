@@ -3,6 +3,7 @@ package com.tanvir.conferencebudget.ui.dashboard
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -10,19 +11,18 @@ import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PersonAdd
-import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.tanvir.conferencebudget.ui.common.ProfileDrawerContent
 import com.tanvir.conferencebudget.ui.common.UserAvatar
+import com.tanvir.conferencebudget.ui.theme.DeepTealPrimary
 import com.tanvir.conferencebudget.viewmodel.AuthViewModel
 import com.tanvir.conferencebudget.viewmodel.BudgetViewModel
 import kotlinx.coroutines.launch
@@ -116,7 +116,8 @@ fun DashboardScreen(
                                 Text(
                                     text = "$displayName • $roleTitle",
                                     style = MaterialTheme.typography.labelMedium,
-                                    color = MaterialTheme.colorScheme.primary
+                                    color = DeepTealPrimary,
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             }
                         }
@@ -127,7 +128,7 @@ fun DashboardScreen(
                                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                             }
                             IconButton(onClick = { scope.launch { drawerState.open() } }) {
-                                UserAvatar(user = currentUser, size = 34.dp)
+                                UserAvatar(user = currentUser, size = 36.dp)
                             }
                         }
                     },
@@ -148,40 +149,30 @@ fun DashboardScreen(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        titleContentColor = MaterialTheme.colorScheme.onSurface
+                        containerColor = Color(0xFFF4F7F6),
+                        titleContentColor = Color(0xFF0F172A)
                     )
                 )
-            }
+            },
+            containerColor = Color(0xFFF4F7F6)
         ) { padding ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
             ) {
-                // Glassmorphic Hero Budget Summary Card
+                // TrackMyBill Inspired Deep Teal Hero Balance Container (Image 3 Aesthetic)
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
                     shape = RoundedCornerShape(24.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    ),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    colors = CardDefaults.cardColors(containerColor = DeepTealPrimary),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(
-                                Brush.verticalGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
-                                        MaterialTheme.colorScheme.primaryContainer
-                                    )
-                                )
-                            )
                             .padding(20.dp)
                     ) {
                         Row(
@@ -190,51 +181,72 @@ fun DashboardScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text("ESTIMATED BUDGET", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                                Text(
+                                    "ESTIMATED BUDGET",
+                                    style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.sp),
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White.copy(alpha = 0.7f)
+                                )
                                 Text(
                                     "৳%,.0f".format(totalEst),
-                                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    style = MaterialTheme.typography.headlineLarge.copy(fontWeight = FontWeight.ExtraBold),
+                                    color = Color.White
                                 )
                             }
 
-                            Column(horizontalAlignment = Alignment.End) {
-                                Text("SPENT SO FAR", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                            Surface(
+                                shape = CircleShape,
+                                color = Color.White.copy(alpha = 0.15f),
+                                modifier = Modifier.padding(start = 8.dp)
+                            ) {
                                 Text(
-                                    "৳%,.0f".format(totalAct),
-                                    style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.ExtraBold),
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    text = "$percentSpent% Used",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        // Sub-metrics pills (Spent vs Remaining)
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(14.dp))
+                                .background(Color.White.copy(alpha = 0.1f))
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text("SPENT", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f), fontWeight = FontWeight.Bold)
+                                Text("৳%,.0f".format(totalAct), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = Color(0xFF10B981))
+                            }
+
+                            Column(horizontalAlignment = Alignment.End) {
+                                Text("REMAINING / DUE", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f), fontWeight = FontWeight.Bold)
+                                Text(
+                                    "৳%,.0f".format(totalDue),
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = if (totalDue < 0) Color(0xFFF87171) else Color.White
                                 )
                             }
                         }
 
                         Spacer(modifier = Modifier.height(14.dp))
 
-                        // Visual Budget Progress Bar
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text("Budget Utilized ($percentSpent%)", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium)
-                            Text(
-                                text = "Remaining: ৳%,.0f".format(totalDue),
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Bold,
-                                color = if (totalDue < 0) Color(0xFFEF4444) else MaterialTheme.colorScheme.primary
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(6.dp))
-
+                        // Progress Utilization Bar
                         LinearProgressIndicator(
                             progress = { spentRatio },
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(8.dp)
-                                .clip(RoundedCornerShape(4.dp)),
-                            color = if (spentRatio > 0.9f) Color(0xFFEF4444) else MaterialTheme.colorScheme.primary,
-                            trackColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.15f)
+                                .height(6.dp)
+                                .clip(RoundedCornerShape(3.dp)),
+                            color = if (spentRatio > 0.9f) Color(0xFFF87171) else Color(0xFF10B981),
+                            trackColor = Color.White.copy(alpha = 0.2f)
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -243,30 +255,40 @@ fun DashboardScreen(
                             onClick = onRecordExpenseClicked,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(48.dp),
+                                .height(46.dp),
                             shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981))
                         ) {
-                            Icon(Icons.Default.AddShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.AddShoppingCart, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.White)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Record Expense", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Text("Record Expense", fontWeight = FontWeight.Bold, fontSize = 15.sp, color = Color.White)
                         }
                     }
                 }
 
+                // Gen-Z Segmented Pill Control
                 TabRow(
                     selectedTabIndex = selectedTabIndex,
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.primary
+                    containerColor = Color.Transparent,
+                    contentColor = DeepTealPrimary,
+                    divider = {}
                 ) {
                     tabs.forEachIndexed { index, title ->
                         Tab(
                             selected = selectedTabIndex == index,
                             onClick = { selectedTabIndex = index },
-                            text = { Text(title, fontWeight = FontWeight.Bold, fontSize = 15.sp) }
+                            text = {
+                                Text(
+                                    text = title,
+                                    fontWeight = if (selectedTabIndex == index) FontWeight.ExtraBold else FontWeight.Medium,
+                                    fontSize = 15.sp
+                                )
+                            }
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Box(modifier = Modifier.weight(1f)) {
                     when (selectedTabIndex) {

@@ -15,6 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.tanvir.conferencebudget.ui.common.CategoryIconBadge
+import com.tanvir.conferencebudget.ui.theme.DeepTealPrimary
 import com.tanvir.conferencebudget.viewmodel.BudgetViewModel
 
 @Composable
@@ -29,9 +32,9 @@ fun SpendingTab(
     if (spendingEntries.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(Icons.Default.ReceiptLong, contentDescription = null, modifier = Modifier.size(48.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                Icon(Icons.Default.ReceiptLong, contentDescription = null, modifier = Modifier.size(54.dp), tint = DeepTealPrimary.copy(alpha = 0.5f))
                 Spacer(modifier = Modifier.height(12.dp))
-                Text("No spending entries logged yet.", style = MaterialTheme.typography.bodyLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("No spending entries logged yet.", style = MaterialTheme.typography.bodyLarge, color = Color(0xFF64748B))
             }
         }
     } else {
@@ -40,76 +43,63 @@ fun SpendingTab(
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            item {
+                Text(
+                    text = "RECENT ACTIVITY",
+                    style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.sp),
+                    color = DeepTealPrimary,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                )
+            }
+
             items(spendingEntries) { entry ->
                 val subCat = subCategories.find { it.id == entry.subCategoryId }
-                val catName = categories.find { it.id == entry.categoryId }?.name ?: ""
+                val catName = categories.find { it.id == entry.categoryId }?.name ?: subCat?.name ?: "Expense"
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
+                    shape = RoundedCornerShape(20.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = CardDefaults.cardColors(containerColor = Color.White)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CategoryIconBadge(categoryName = catName, size = 46.dp)
+
+                        Spacer(modifier = Modifier.width(14.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = subCat?.name ?: "Expenditure",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, fontSize = 16.sp),
+                                color = Color(0xFF0F172A)
+                            )
+                            Spacer(modifier = Modifier.height(2.dp))
+                            Text(
+                                text = "${entry.date} • ${entry.spentByName}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFF64748B)
+                            )
+                            if (entry.note.isNotBlank()) {
                                 Text(
-                                    text = subCat?.name ?: "Expenditure",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold
+                                    text = entry.note,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = DeepTealPrimary,
+                                    fontWeight = FontWeight.Medium
                                 )
-                                if (catName.isNotBlank()) {
-                                    Text(
-                                        text = "Category: $catName",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        fontWeight = FontWeight.Medium
-                                    )
-                                }
                             }
-
-                            Text(
-                                text = "৳%,.0f".format(entry.amount),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = Color(0xFF10B981)
-                            )
                         }
 
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-
-                        Spacer(modifier = Modifier.height(10.dp))
-
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Text(
-                                text = "Spent by: ${entry.spentByName}",
-                                style = MaterialTheme.typography.bodySmall,
-                                fontWeight = FontWeight.SemiBold
-                            )
-                            SuggestionChip(
-                                onClick = {},
-                                label = { Text(entry.date, style = MaterialTheme.typography.labelSmall) }
-                            )
-                        }
-
-                        if (entry.note.isNotBlank()) {
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Note: ${entry.note}",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        Text(
+                            text = "৳%,.0f".format(entry.amount),
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
+                            color = Color(0xFF10B981)
+                        )
                     }
                 }
             }

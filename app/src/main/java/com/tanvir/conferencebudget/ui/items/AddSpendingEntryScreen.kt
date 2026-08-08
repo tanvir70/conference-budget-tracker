@@ -3,7 +3,7 @@ package com.tanvir.conferencebudget.ui.items
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -11,10 +11,16 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.tanvir.conferencebudget.data.model.SpendingEntry
+import com.tanvir.conferencebudget.ui.common.NumericKeypad
+import com.tanvir.conferencebudget.ui.theme.DeepTealPrimary
 import com.tanvir.conferencebudget.viewmodel.AuthViewModel
 import com.tanvir.conferencebudget.viewmodel.BudgetViewModel
 import java.text.SimpleDateFormat
@@ -66,17 +72,24 @@ fun AddSpendingEntryScreen(
         }
     }
 
+    val displayAmount = if (amountStr.isEmpty()) "0" else amountStr
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Log Spending Entry") },
+                title = { Text("Log Spending Entry", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = Color(0xFFF4F7F6),
+                    titleContentColor = Color(0xFF0F172A)
+                )
             )
-        }
+        },
+        containerColor = Color(0xFFF4F7F6)
     ) { padding ->
         Column(
             modifier = Modifier
@@ -84,54 +97,100 @@ fun AddSpendingEntryScreen(
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
+            // Category info badge card
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.secondaryContainer)
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Category: $categoryName", style = MaterialTheme.typography.labelMedium)
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text("Sub-Category: ${subCat?.name ?: ""}", style = MaterialTheme.typography.titleMedium)
-                    if (!subCat?.assignedVolunteerName.isNullOrBlank()) {
-                        Text("Assigned: ${subCat?.assignedVolunteerName}", style = MaterialTheme.typography.bodySmall)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column {
+                        Text(categoryName.ifEmpty { "Category" }, style = MaterialTheme.typography.labelSmall, color = Color(0xFF64748B), fontWeight = FontWeight.Bold)
+                        Text(subCat?.name ?: "Sub-Category", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = DeepTealPrimary)
                     }
+
+                    FilterChip(
+                        selected = true,
+                        onClick = { showDatePicker = true },
+                        label = { Text(if (date.isBlank()) "Today" else date, fontWeight = FontWeight.Bold) },
+                        leadingIcon = {
+                            Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(14.dp))
+                        },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = Color(0xFFE8F5E9),
+                            selectedLabelColor = Color(0xFF047857)
+                        )
+                    )
                 }
             }
 
-            OutlinedTextField(
-                value = amountStr,
-                onValueChange = { amountStr = it },
-                label = { Text("Amount Spent (৳)") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Big Currency Entry Box (Image 4 Aesthetic)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "AMOUNT SPENT",
+                        style = MaterialTheme.typography.labelSmall.copy(letterSpacing = 1.5.sp),
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF64748B)
+                    )
 
-            OutlinedTextField(
-                value = date,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("Date") },
-                trailingIcon = {
-                    IconButton(onClick = { showDatePicker = true }) {
-                        Icon(Icons.Default.CalendarToday, contentDescription = "Select Date")
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { showDatePicker = true }
-            )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "৳ $displayAmount",
+                        style = MaterialTheme.typography.headlineLarge.copy(fontSize = 38.sp, fontWeight = FontWeight.ExtraBold),
+                        color = DeepTealPrimary,
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
 
             OutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
                 label = { Text("Note / Description (e.g. Booking advance)") },
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 2
+                shape = RoundedCornerShape(14.dp),
+                singleLine = true
             )
 
-            Spacer(modifier = Modifier.weight(1f))
+            // Custom On-Screen Keypad (Image 4 Easy Entry)
+            NumericKeypad(
+                onDigitClick = { digit ->
+                    if (digit == "." && amountStr.contains(".")) {
+                        // ignore double dot
+                    } else if (amountStr.length < 9) {
+                        amountStr += digit
+                    }
+                },
+                onBackspaceClick = {
+                    if (amountStr.isNotEmpty()) {
+                        amountStr = amountStr.dropLast(1)
+                    }
+                }
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
 
             Button(
                 onClick = {
@@ -148,10 +207,14 @@ fun AddSpendingEntryScreen(
                     budgetViewModel.addSpendingEntry(entry)
                     onNavigateBack()
                 },
-                modifier = Modifier.fillMaxWidth().height(50.dp),
-                enabled = amountStr.isNotBlank()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF10B981)),
+                enabled = amountStr.isNotBlank() && (amountStr.toDoubleOrNull() ?: 0.0) > 0
             ) {
-                Text("Log Expenditure")
+                Text("Log Expenditure", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Color.White)
             }
         }
     }

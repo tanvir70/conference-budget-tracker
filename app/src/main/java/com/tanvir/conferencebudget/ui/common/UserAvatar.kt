@@ -18,7 +18,7 @@ import com.tanvir.conferencebudget.data.model.User
 
 val avatarGradients = listOf(
     Color(0xFF10B981), // Emerald
-    Color(0xFF6366F1), // Indigo
+    Color(0xFF0D5C50), // Teal
     Color(0xFF0284C7), // Sky Blue
     Color(0xFFF59E0B), // Amber
     Color(0xFFEC4899), // Pink
@@ -44,7 +44,7 @@ fun UserAvatar(
         modifier = Modifier
             .size(size)
             .clip(CircleShape)
-            .border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f), CircleShape)
+            .border(1.5.dp, Color.White.copy(alpha = 0.6f), CircleShape)
             .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier),
         shape = CircleShape,
         color = bgColor,
